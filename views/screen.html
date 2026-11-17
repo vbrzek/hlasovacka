@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plátno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<style>
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #fff; }
+  /* Pevná scéna 1920×1080, škálovaná na velikost okna – vypadá stejně ve fullscreenu i v OBS */
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; background: #fff; overflow: hidden; }
+  .logo { position: absolute; top: 48px; right: 64px; max-height: 76px; max-width: 360px; object-fit: contain; }
+
+  /* statický slajd */
+  .static { position: absolute; inset: 0; padding: 110px 160px 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 48px; }
+  .static .content-img { max-width: 100%; min-height: 0; flex: 0 1 auto; max-height: 100%; object-fit: contain; }
+  .static h1 { margin: 0; font-size: 84px; font-weight: 700; letter-spacing: -.025em; line-height: 1.08; text-align: center; white-space: pre-line; flex: none; }
+  .static.no-img h1 { font-size: 104px; }
+
+  /* otázka */
+  /* hlavička otázky: QR kód vpravo nahoře, text otázky ho obtéká */
+  .qhead { position: absolute; top: 110px; left: 160px; right: 64px; }
+  .has-logo .qhead { top: 160px; }
+  .qr-float { float: right; margin: 0 0 24px 64px; text-align: center; font-size: 20px; font-weight: 600; color: var(--muted); }
+  .qr-float img { width: 190px; height: 190px; margin-bottom: 6px; }
+  .qhead h1 { margin: 0; padding-right: 96px; font-size: 68px; font-weight: 700; letter-spacing: -.025em; line-height: 1.12; white-space: pre-line; }
+  .chart { position: absolute; left: 160px; right: 160px; bottom: 110px; display: flex; justify-content: center; align-items: flex-end; gap: 16px; }
+  .col { flex: 1 1 0; max-width: 460px; min-width: 0; display: flex; flex-direction: column; }
+  .barwrap { height: 438px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .val { font-size: 56px; font-weight: 400; padding: 0 0 14px 14px; font-variant-numeric: tabular-nums; }
+  /* sloupec a základní linka jsou jeden prvek – bez švu; při 0 hlasech zbude jen zaoblená linka */
+  .bar { height: 8px; background: var(--c); border-radius: 4px; transition: height .7s cubic-bezier(.2,.8,.2,1), border-radius .7s cubic-bezier(.2,.8,.2,1); }
+  .label { font-size: 40px; margin-top: 30px; line-height: 1.15; overflow-wrap: anywhere; min-height: 1.15em; }
+  .votes { position: absolute; left: 64px; bottom: 40px; font-size: 26px; color: var(--muted); }
+
+  /* úvod s QR */
+  .lobby { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 140px; padding: 120px 160px; }
+  .lobby-text { flex: 1; max-width: 880px; }
+  .lobby h1 { font-size: 92px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: 0 0 40px; white-space: pre-line; }
+  .lobby p { font-size: 42px; margin: 0 0 20px; color: var(--muted); }
+  .lobby .url { font-size: 46px; font-weight: 700; color: var(--accent); overflow-wrap: anywhere; }
+  .qr-big { width: 600px; height: 600px; flex: none; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/screen.js"></script>
+</body>
+</html>

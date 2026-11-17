@@ -1,0 +1,26 @@
+{
+  "name": "hlasovacka",
+  "version": "1.0.0",
+  "description": "Jednoduché interaktivní prezentace s hlasováním (statické slajdy + multiple choice)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "loadtest": "node scripts/loadtest.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.22.3",
+    "multer": "^2.5.0",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
