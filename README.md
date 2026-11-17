@@ -70,4 +70,5 @@ Každý telefon (podle ID v localStorage) může u otázky hlasovat jednou. Po h
   ```
 
 - Limit otevřených souborů (`ulimit -n`, v systemd `LimitNOFILE=65535`) by měl být nad 1024.
+- Živá zkouška s virtuálním publikem na existující prezentaci: `node scripts/simulate.js <admin URL> 500 10 20` (počet hlasujících, minut, rozptyl hlasování v s). Hlasují, kdykoli přepnete na otázku; hlasy pak vynulujte v administraci.
 - Zátěžový test: `npm run loadtest -- http://localhost:3000 500`. Lokálně vyšlo: 500 klientů, přepnutí slajdu doručeno všem za ~16 ms, 500 hlasů zpracováno za ~40 ms.
