@@ -9,6 +9,8 @@ const QRCode = require('qrcode');
 const { Server } = require('socket.io');
 
 const PORT = Number(process.env.PORT) || 3000;
+// HOST=127.0.0.1 → dostupné jen přes reverzní proxy na stejném stroji
+const HOST = process.env.HOST || undefined;
 const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(__dirname, 'data'));
 const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');
 // Veřejná adresa (např. https://hlasovani.example.cz) – použije se v QR kódu.
@@ -374,6 +376,6 @@ setInterval(() => {
   }
 }, 2000);
 
-server.listen(PORT, undefined, 2048, () => {
-  console.log(`Běží na http://localhost:${PORT}  (data: ${DATA_DIR})`);
+server.listen(PORT, HOST, 2048, () => {
+  console.log(`Běží na http://${HOST || 'localhost'}:${PORT}  (data: ${DATA_DIR})`);
 });

@@ -13,9 +13,30 @@ Proměnné prostředí:
 
 | proměnná     | výchozí    | význam |
 |--------------|------------|--------|
-| `PORT`       | `3000`     | port serveru |
+| `PORT`       | `3000` (v PM2 `3210`) | port serveru |
+| `HOST`       | všechna rozhraní (v PM2 `127.0.0.1`) | adresa, na které server poslouchá |
 | `DATA_DIR`   | `./data`   | kam se ukládají prezentace (JSON) a nahrané obrázky |
 | `PUBLIC_URL` | –          | veřejná adresa, např. `https://hlasovani.example.cz`; použije se v QR kódu. Bez ní se adresa odvodí z hlavičky Host. |
+
+## Nasazení na server (PM2)
+
+```bash
+git clone https://github.com/vbrzek/hlasovacka.git && cd hlasovacka
+npm ci --omit=dev
+cp .env.example .env        # nastavte PORT (výchozí 3210), PUBLIC_URL, případně HOST
+npm run pm2:start           # = pm2 start ecosystem.config.js
+pm2 save                    # zapamatovat procesy
+pm2 startup                 # jednorázově: automatický start po rebootu (vypíše příkaz k provedení)
+```
+
+Další užitečné příkazy:
+
+```bash
+npm run pm2:logs            # logy
+git pull && npm ci --omit=dev && npm run pm2:restart   # aktualizace (načte i změny v .env)
+```
+
+Výchozí `HOST=127.0.0.1` znamená, že aplikace je dostupná jen přes reverzní proxy na stejném stroji (viz nginx níže). Pro přímý přístup zvenku nastavte `HOST=0.0.0.0`.
 
 ## Jak to funguje
 
@@ -31,13 +52,13 @@ Každý telefon (podle ID v localStorage) může u otázky hlasovat jednou. Po h
 
 ## Provoz na eventu
 
-- Aplikace musí běžet jako **jedna instance** (bez clusteru nebo PM2 v cluster módu), protože stav je v paměti procesu. Na disk se ukládá snapshot nejvýš jednou za 1,5 s a hned při ukončení procesu.
+- Aplikace musí běžet jako **jedna instance** (`ecosystem.config.js` to tak má nastavené; neměňte na cluster mód), protože stav je v paměti procesu. Na disk se ukládá snapshot nejvýš jednou za 1,5 s a hned při ukončení procesu.
 - Výsledky se rozesílají dávkově (max. ~3× za sekundu), ne po každém hlasu.
 - Za reverzní proxy je potřeba povolit WebSockety. Pro nginx:
 
   ```nginx
   location / {
-    proxy_pass http://127.0.0.1:3000;
+    proxy_pass http://127.0.0.1:3210;   # = PORT z .env
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
