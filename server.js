@@ -144,6 +144,7 @@ function publicState(p) {
     count: p.slides.length,
     slide: s,
     results: s && s.type === 'choice' ? results(p, s) : null,
+    paused: !!(s && p.paused && p.paused[s.id]),
   };
 }
 
@@ -211,6 +212,7 @@ app.post('/api/presentations', (req, res) => {
     intro: '',
     showQr: true,
     currentId: null,
+    paused: {},
     slides: [
       cleanSlide({ type: 'static', title: 'Vítejte!' }),
       cleanSlide({ type: 'choice', title: 'Ukázková otázka?', options: [{ text: 'ANO' }, { text: 'NE' }] }),
@@ -244,6 +246,7 @@ app.put('/api/admin/:token', (req, res) => {
     p.slides = b.slides.slice(0, 200).map(cleanSlide).filter((s) => !seen.has(s.id) && seen.add(s.id));
   }
   if (p.currentId && !currentSlide(p)) p.currentId = null;
+  if (p.paused) for (const id of Object.keys(p.paused)) if (!p.slides.some((s) => s.id === id)) delete p.paused[id];
   markDirty(p);
 
   // rozesíláme jen pokud se změnilo něco, co je vidět na plátně / v mobilu
@@ -316,6 +319,15 @@ io.on('connection', (socket) => {
       markDirty(p);
       broadcastState(p);
     });
+    socket.on('pause', (data) => {
+      const id = data && data.slideId;
+      if (typeof id !== 'string' || !p.slides.some((s) => s.id === id && s.type === 'choice')) return;
+      p.paused ||= {};
+      if (data.paused) p.paused[id] = true;
+      else delete p.paused[id];
+      markDirty(p);
+      broadcastState(p);
+    });
     socket.on('reset', (data) => {
       const id = data && data.slideId;
       if (typeof id !== 'string' || !p.votes[id]) return;
@@ -348,6 +360,7 @@ io.on('connection', (socket) => {
     if (!Number.isInteger(option) || option < 0 || option >= s.options.length) {
       return reply({ ok: false, error: 'Neplatná volba.' });
     }
+    if (p.paused && p.paused[s.id]) return reply({ ok: false, error: 'Hlasování je pozastaveno.' });
     const votes = (p.votes[s.id] ||= {});
     if (votes[vid] !== undefined) return reply({ ok: true, myVote: votes[vid], results: results(p, s) });
     votes[vid] = option;

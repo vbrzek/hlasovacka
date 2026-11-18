@@ -25,3 +25,4 @@ input, textarea, select { font: inherit; color: inherit; }
 .btn.dark { background: var(--ink); border-color: var(--ink); color: #fff; }
 .btn.danger { color: var(--danger); }
 .btn:disabled { opacity: .45; cursor: default; }
+.btn[hidden] { display: none; }

@@ -4,7 +4,7 @@ const API = '/api/admin/' + pageToken;
 
 let P = null; // data prezentace
 let selected = 'settings';
-let live = { currentId: null, results: null };
+let live = { currentId: null, results: null, paused: false };
 
 /* --------------------------------------------------------------- ukládání */
 
@@ -300,6 +300,9 @@ function step(d) {
 $('#prev').onclick = () => step(-1);
 $('#next').onclick = () => step(1);
 $('#lobby').onclick = () => goto(null);
+$('#pause').onclick = () => {
+  if (live.currentId) socket.emit('pause', { slideId: live.currentId, paused: !live.paused });
+};
 addEventListener('keydown', (e) => {
   if (e.target.closest('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey) return;
   if (['ArrowRight', 'PageDown'].includes(e.key)) { e.preventDefault(); step(1); }
@@ -314,6 +317,10 @@ function renderControls() {
     : 'Promítá se: <b>Úvod s QR kódem</b>';
   $('#prev').disabled = !s;
   $('#next').disabled = i === P.slides.length - 1;
+  const pause = $('#pause');
+  pause.hidden = !(s && s.type === 'choice');
+  pause.textContent = live.paused ? '▶ Obnovit sběr hlasů' : '⏸ Pozastavit sběr hlasů';
+  pause.classList.toggle('dark', live.paused);
   const r = live.results;
   $('#sVotes').textContent = s && s.type === 'choice' && r ? r.total : '–';
 }
@@ -323,7 +330,7 @@ function renderControls() {
 const socket = io({ auth: { token: pageToken } });
 socket.on('state', (st) => {
   const changed = live.currentId !== st.currentId;
-  live = { currentId: st.currentId, results: st.results };
+  live = { currentId: st.currentId, results: st.results, paused: st.paused };
   if (!P) return;
   renderControls();
   if (changed) {

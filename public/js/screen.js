@@ -64,7 +64,10 @@ function updateBars(r) {
     col.querySelector('.val').textContent = s.showPercent ? `${pct(c, r.total)}%` : c;
   });
   const v = stage.querySelector('.votes');
-  if (v) v.textContent = r.total ? `${r.total} ${r.total === 1 ? 'hlas' : r.total < 5 ? 'hlasy' : 'hlasů'}` : '';
+  if (v) {
+    const n = r.total ? `${r.total} ${r.total === 1 ? 'hlas' : r.total < 5 ? 'hlasy' : 'hlasů'}` : '';
+    v.textContent = state.paused ? [n, 'hlasování pozastaveno'].filter(Boolean).join(' · ') : n;
+  }
 }
 
 function render(st) {

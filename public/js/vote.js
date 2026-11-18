@@ -45,6 +45,9 @@ function question(st) {
 }
 
 function resultsView(st) {
+  const note = st.paused
+    ? 'Hlasování je pozastaveno.'
+    : 'Děkujeme za hlas! Výsledky se aktualizují živě.';
   const s = st.slide;
   const rows = s.options
     .map(
@@ -55,13 +58,13 @@ function resultsView(st) {
     )
     .join('');
   return `${header(st)}<h1 class="q">${esc(s.title)}</h1>${rows}
-    <div class="thanks">Děkujeme za hlas! Výsledky se aktualizují živě.</div>`;
+    <div class="thanks">${note}</div>`;
 }
 
 function updateResults() {
   const s = state && state.slide;
   const r = state && state.results;
-  if (!s || !r || r.slideId !== s.id || myVote === null) return;
+  if (!s || !r || r.slideId !== s.id || (myVote === null && !state.paused)) return;
   app.querySelectorAll('.res').forEach((el, i) => {
     const c = r.counts[i] || 0;
     const p = pct(c, r.total);
@@ -74,8 +77,8 @@ function render() {
   const st = state;
   const s = st.slide;
   let mode = 'wait';
-  if (s && s.type === 'choice') mode = myVote === null ? 'q' : 'r';
-  const key = JSON.stringify([mode, mode === 'wait' ? [!!s, st.intro] : s, st.logo, myVote, pending]);
+  if (s && s.type === 'choice') mode = myVote === null && !st.paused ? 'q' : 'r';
+  const key = JSON.stringify([mode, mode === 'wait' ? [!!s, st.intro] : s, st.logo, myVote, pending, !!st.paused]);
   if (key !== lastKey) {
     lastKey = key;
     app.innerHTML = mode === 'wait' ? waiting(st) : mode === 'q' ? question(st) : resultsView(st);
